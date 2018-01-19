@@ -59,17 +59,21 @@ class MinMax:
 
     def play(self, coord):
 
-        if coord < -1 or coord > 9:
+        if coord < -1 or coord >= 9:
             return 403
 
         if coord == -1:
             return self.tree[self.to_str(self.board)]
+
+        if self.score(self.board) != 0:
+            return 418
 
         if self.board[coord] != 0:
             return 403
 
         self.board[coord] = self.player()
         return self.tree[self.to_str(self.board)]
+
 
 
 

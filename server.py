@@ -1,6 +1,6 @@
 from flask import Flask, request
 app = Flask(__name__)
-TOKEN = "100500"
+TOKEN = "Bearer"
 
 @app.route("/")
 def index():

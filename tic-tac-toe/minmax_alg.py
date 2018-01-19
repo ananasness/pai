@@ -65,15 +65,15 @@ class MinMax:
         if self.score(self.board) != 0:
             return 418
 
+        if coord != -1 and self.board[coord] != 0:
+            return 403
+
         if coord != -1:
             self.board[coord] = self.player
 
-        if self.board[coord] != 0:
-            return 403
-
         move = self.tree.get(self.to_str(self.board), 418)
         if 0 <= move <= 8:
-            self.board[move] = self.player
+            self.board[move] = self.ai
         return move
 
 

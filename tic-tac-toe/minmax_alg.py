@@ -62,17 +62,19 @@ class MinMax:
         if coord < -1 or coord >= 9:
             return 403
 
-        if coord == -1:
-            return self.tree.get(self.to_str(self.board), 418)
-
         if self.score(self.board) != 0:
             return 418
+
+        if coord != -1:
+            self.board[coord] = self.player
 
         if self.board[coord] != 0:
             return 403
 
-        self.board[coord] = self.player
-        return self.tree.get(self.to_str(self.board), 418)
+        move = self.tree.get(self.to_str(self.board), 418)
+        if 0 <= move <= 8:
+            self.board[move] = self.player
+        return move
 
 
 

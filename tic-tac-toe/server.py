@@ -22,4 +22,8 @@ def tictactoe(session_id):
 			move = -1
 	except ValueError:
 		return "", 403
-	return "", sessions[session_id].play(move)
+	response = sessions[session_id].play(move)
+	if response > 9:
+		return "", response
+	else:
+		return str(response), 200

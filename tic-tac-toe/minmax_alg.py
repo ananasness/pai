@@ -72,7 +72,7 @@ class MinMax:
             return 403
 
         self.board[coord] = self.player
-        return self.tree[self.to_str(self.board)]
+        return self.tree.get(self.to_str(self.board), 418)
 
 
 

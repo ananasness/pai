@@ -108,19 +108,18 @@ class MinMax:
     def play(self, s):
 
         board = self.from_input(s)
-        # print(self.board)
 
         if self.is_empty(board):
             self.player, self.ai = 'o', 'x'
 
         if self.score(board, self.ai) != 0:
-            return self.to_output(), 418
+            return self.to_output(board), 418
 
         s, move = self.minmax(board, self.ai, self.ai)
         if 0 <= move <= 8:
             board[move] = self.ai
             self.board = board
-            return self.to_output(board), 200
+            return self.to_output(board), 200 if self.score(board, self.ai) == 0 else 418
 
         else:
             return self.to_output(board), 418

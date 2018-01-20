@@ -1,4 +1,5 @@
 import numpy as np
+import re
 lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
 opponent = lambda x: 'x' if x == 'o' else 'o'
 
@@ -107,6 +108,9 @@ class MinMax:
 
     def play(self, s):
 
+        if not self.board_valid(s):
+            return '', 403
+
         board = self.from_input(s)
 
         if self.is_empty(board):
@@ -123,6 +127,29 @@ class MinMax:
 
         else:
             return self.to_output(board), 418
+
+    def board_valid(self, board):
+        pattern = re.compile("[xo\.]{3}\n[xo\.]{3}\n[xo\.]{3}")
+
+        legal_change = 0
+        new_b = self.from_input(board)
+        for i in range(len(new_b)):
+            if new_b[i] == self.board[i]:
+                continue
+
+            elif new_b[i] == self.player and self.board[i] == '.':
+                legal_change += 1
+
+            else:
+                print('does not match')
+                return False
+
+        else:
+            if legal_change not in [0, 1]:
+                print('not legal move')
+                return False
+
+        return pattern.fullmatch(board) is not None
 
 
 

@@ -128,6 +128,27 @@ class MinMax:
         else:
             return self.to_output(board), 418
 
+    def play2(self, move):
+
+        if move == -1:
+            self.player, self.ai = 'o', 'x'
+
+        if 0 <= move <= 8:
+            self.board[move] = self.player
+
+        if self.score(self.board, self.ai) != 0:
+            return self.to_output(self.board), 2
+
+        s, ai_move = self.minmax(self.board, self.ai, self.ai)
+        if 0 <= ai_move <= 8:
+            self.board[ai_move] = self.ai
+
+        if self.score(self.board, self.ai) != 0:
+            return self.to_output(self.board), 1
+
+        else:
+            return self.to_output(self.board), 0
+
     def board_valid(self, board):
         pattern = re.compile("[xo\.]{3}\n[xo\.]{3}\n[xo\.]{3}")
 

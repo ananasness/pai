@@ -8,19 +8,24 @@ class Gomoku:
         self.state = [["." for _ in range(0, self.n_cols)] for _ in range(0, self.n_cols)]
 
     def play(self, x: int, y: int):
-        assert 0 <= x <= self.n_cols - 1
-        assert 0 <= y <= self.n_rows - 1
-        assert self.state[y][x] == '.'
+        if not self.is_move_valid(x, y):
+            return self.state
+        else:
+            self.state[y][x] = "X"
+            while True:
+                bx = randint(0, 7)
+                by = randint(0, 7)
+                if self.state[by][bx] == '.':
+                    self.state[by][bx] = 'O'
+                    break
 
-        self.state[y][x] = "X"
-        while True:
-            bx = randint(0, 7)
-            by = randint(0, 7)
-            if self.state[by][bx] == '.':
-                self.state[by][bx] = 'O'
-                break
+            return self.state
 
-        return self.state,
+    def is_move_valid(self, x, y):
+        if 0 <= x <= self.n_cols - 1 and 0 <= y <= self.n_rows - 1 and self.state[y][x] == '.':
+            return True
+        else:
+            return False
 
     def __str__(self):
         return str(self.state).replace('], [', '],\n [')

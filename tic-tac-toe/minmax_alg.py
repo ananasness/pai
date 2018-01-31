@@ -133,21 +133,45 @@ class MinMax:
         if move == -1:
             self.player, self.ai = 'o', 'x'
 
-        if 0 <= move <= 8:
+        elif 0 <= move <= 8:
             self.board[move] = self.player
 
+        # if game over after player's movement
         if self.score(self.board, self.ai) != 0:
             return self.to_output(self.board), 2
 
+        if '.' not in self.board:
+            return self.to_output(self.board), 3
+
+        # ai movement
         s, ai_move = self.minmax(self.board, self.ai, self.ai)
         if 0 <= ai_move <= 8:
             self.board[ai_move] = self.ai
 
+        # if game over after ai's movement
         if self.score(self.board, self.ai) != 0:
             return self.to_output(self.board), 1
 
+        elif '.' not in self.board:
+            return self.to_output(self.board), 3
+
         else:
             return self.to_output(self.board), 0
+
+    def valid(self, move):
+        if self.is_empty(self.board) and move == -1:
+            return True
+
+        if move not in range(0, 9):
+            return False
+
+        elif self.board[move] != '.':
+            return False
+
+        elif self.score(self.board, self.ai) != 0:
+            return False
+
+        return True
 
     def board_valid(self, board):
         pattern = re.compile("[xo\.]{3}\n[xo\.]{3}\n[xo\.]{3}")

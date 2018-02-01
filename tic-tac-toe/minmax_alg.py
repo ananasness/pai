@@ -1,5 +1,7 @@
-import numpy as np
 import re
+
+import numpy as np
+
 lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
 opponent = lambda x: 'x' if x == 'o' else 'o'
 
@@ -23,6 +25,7 @@ def potential_lines(board, i, mode):
                 s -= 1
 
     return s
+
 
 class MinMax:
     def __init__(self):
@@ -56,9 +59,10 @@ class MinMax:
         s = s.replace('\n', '')
         return list(s)
 
-    def to_output(self, board):
-        s = board[:3] + ['\n'] + board[3:6] + ['\n'] + board[6:]
-        return ''.join(s)
+    @staticmethod
+    def to_output(board):
+        result = list(map(lambda x: x.replace('x', '❌').replace('o', '⭕️'), board))
+        return [result[:3], result[3:6], result[6:]]
 
     def minmax(self, board, mode, player):
         wanted_sc = 10 if mode == player else -10
@@ -195,10 +199,3 @@ class MinMax:
                 return False
 
         return pattern.fullmatch(board) is not None
-
-
-
-
-
-
-

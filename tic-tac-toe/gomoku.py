@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, shuffle
 
 
 class Gomoku:
@@ -9,6 +9,7 @@ class Gomoku:
         self.empty_piece = '.'
         self.state = [[self.empty_piece for _ in range(self.n_cells)]
                       for _ in range(self.n_cells)]
+        self._moves = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1)]
 
     def play(self, x: int, y: int):
         if not self.is_move_valid(x, y):
@@ -24,12 +25,7 @@ class Gomoku:
             if status != 0:
                 return self.state, status
 
-            while True:
-                bx = randint(0, 7)
-                by = randint(0, 7)
-                if self.state[by][bx] == self.empty_piece:
-                    self.state[by][bx] = self.player_2_piece
-                    break
+            self.make_bot_move()
 
             """
             0 - continue
@@ -44,6 +40,21 @@ class Gomoku:
                 return self.state, status
 
             return self.state, 0
+
+    def make_bot_move(self):
+        is_done = False
+        while not is_done:
+            bx = randint(0, 7)
+            by = randint(0, 7)
+            if self.state[by][bx] == self.player_2_piece or \
+                    self.state[by][bx] == self.player_1_piece:
+                shuffle(self._moves)
+                for dx, dy in self._moves:
+                    if 0 <= bx + dx <= self.n_cells - 1 and 0 <= by + dy <= self.n_cells - 1:
+                        if self.state[bx + dx][by + dy] == self.empty_piece:
+                            self.state[bx + dx][by + dy] = self.player_2_piece
+                            is_done = True
+                            break
 
     def is_move_valid(self, x, y):
         if 0 <= x <= self.n_cells - 1 and \

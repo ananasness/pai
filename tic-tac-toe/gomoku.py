@@ -51,8 +51,8 @@ class Gomoku:
                 shuffle(self._moves)
                 for dx, dy in self._moves:
                     if 0 <= bx + dx <= self.n_cells - 1 and 0 <= by + dy <= self.n_cells - 1:
-                        if self.state[bx + dx][by + dy] == self.empty_piece:
-                            self.state[bx + dx][by + dy] = self.player_2_piece
+                        if self.state[by + dy][bx + dx] == self.empty_piece:
+                            self.state[by + dy][bx + dx] = self.player_2_piece
                             is_done = True
                             break
 

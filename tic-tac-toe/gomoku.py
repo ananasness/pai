@@ -4,8 +4,8 @@ from random import randint
 class Gomoku:
     def __init__(self, n_cells=8):
         self.n_cells = n_cells
-        self.player_1_piece = 'X'
-        self.player_2_piece = 'O'
+        self.player_1_piece = '❌'
+        self.player_2_piece = '⭕️'
         self.empty_piece = '.'
         self.state = [[self.empty_piece for _ in range(self.n_cells)]
                       for _ in range(self.n_cells)]

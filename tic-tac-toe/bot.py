@@ -82,8 +82,7 @@ def callback_inline(call):
         if call.data == "tictactoe start":
             tictactoe[call.message.chat.id] = MinMax()
 
-            board = [tictactoe[call.message.chat.id].board[i * 3: (i + 1) * 3] for i in range(3)]
-            markup = create_gomoku_keyboard(3, "tictactoe", board)
+            markup = create_gomoku_keyboard(3, "tictactoe", MinMax.to_output(tictactoe[call.message.chat.id].board))
             bot.send_message(call.message.chat.id, "Make your move!", reply_markup=markup)
         elif call.message.chat.id in tictactoe:
             search = re.search("tictactoe ([0-9]):([0-9])", call.data)
@@ -91,8 +90,7 @@ def callback_inline(call):
                 move = int(search.group(1)) + int(search.group(2)) * 3
                 if tictactoe[call.message.chat.id].valid(move):
                     result = tictactoe[call.message.chat.id].play2(move)
-                    board = [result[0].replace('\n', '')[i * 3: (i + 1) * 3] for i in range(3)]
-                    send_gamoku_info(call, board, 3, "tictactoe")
+                    send_gamoku_info(call, result[0], 3, "tictactoe")
                     if result[1]:
                         message = "You won! 😻"
                         if result[1] == 1:
@@ -114,7 +112,14 @@ def callback_inline(call):
                 x, y = int(search.group(1)), int(search.group(2))
                 if fiveinarow[call.message.chat.id].is_move_valid(x, y):
                     result = fiveinarow[call.message.chat.id].play(x, y)
-                    send_gamoku_info(call, result, 8, "fiveinarow")
+                    send_gamoku_info(call, result[0], 8, "fiveinarow")
+                    if result[1]:
+                        message = "You won! 😻"
+                        if result[1] == 2:
+                            message = "You lost! 😈"
+                        if result[1] == 3:
+                            message = "It's a draw! 😱"
+                        send_end_game_info(call.message, message, "fiveinarow")
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("matches"))
@@ -129,10 +134,11 @@ def callback_inline(call):
             if search:
                 new_state = matches[call.message.chat.id].state - int(search.group(1))
                 if matches[call.message.chat.id].state_valid(new_state):
-                    if matches[call.message.chat.id].play(new_state):
+                    (bot_move, end_flag) = matches[call.message.chat.id].play(new_state)
+                    if end_flag:
                         send_end_game_info(call.message, "You lost! 😈", "matches")
                     else:
-                        send_matches_info(call, matches[call.message.chat.id].state)
+                        send_matches_info(call, matches[call.message.chat.id].state, bot_move)
 
 
 def create_gomoku_keyboard(size, game, board):
@@ -160,7 +166,7 @@ def callback_inline(call):
         main_menu(call.message)
 
 
-def send_matches_info(call, state):
+def send_matches_info(call, state, bot_move=0):
     global matches
     markup = types.InlineKeyboardMarkup()
     buttons = [types.InlineKeyboardButton(text="Take one match", callback_data="matches 1")]
@@ -173,7 +179,8 @@ def send_matches_info(call, state):
     if call.data == "matches start":
         bot.send_message(call.message.chat.id, "There are %d matches.\nMake your move!" % state, reply_markup=markup)
     else:
-        bot.edit_message_text("There are %d matches.\nMake your move!" % state, call.message.chat.id,
+        bot.edit_message_text("I took %d matches. There are %d matches left.\nMake your move!" % (bot_move, state),
+                              call.message.chat.id,
                               call.message.message_id, reply_markup=markup)
 
 

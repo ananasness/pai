@@ -185,6 +185,7 @@ def send_matches_info(call, state, bot_move=0):
 
 
 def send_end_game_info(message, text, game, btn1_text="Replay"):
+    reset_objects(message.chat.id)
     markup = types.InlineKeyboardMarkup()
     buttons = [types.InlineKeyboardButton(text=btn1_text, callback_data="%s start" % game),
                types.InlineKeyboardButton(text="Menu", callback_data="menu")]

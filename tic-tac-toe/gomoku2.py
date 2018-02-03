@@ -230,6 +230,18 @@ class Game:
         # if is_shown:
         #     graphic(self.board, player1.player, player2.player)
 
+    def is_move_valid(self, x, y):
+        try:
+            location = x, y
+            human_move = self.board.location_to_move(location)
+        except:
+            human_move = -1
+
+        if human_move == -1 or human_move not in self.board.availables:
+            return False
+        else:
+            return True
+
     def state(self, player1=1, player2=2):
         width = self.board.width
         height = self.board.height

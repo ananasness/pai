@@ -6,7 +6,7 @@ import requests
 import telebot
 from telebot import types
 
-from gomoku import Gomoku
+from gomoku2 import Game as Gomoku
 from matches import Matches
 from minmax_alg import MinMax
 
@@ -105,19 +105,22 @@ def callback_inline(call):
     if call.message:
         if call.data == "fiveinarow start":
             fiveinarow[call.message.chat.id] = Gomoku()
-            send_gamoku_info(call, fiveinarow[call.message.chat.id].state, 8, "fiveinarow")
+            board = fiveinarow[call.message.chat.id].state()
+            board = [[char.replace('X', '🔴').replace('O', '🔵') for char in row] for row in board]
+            send_gamoku_info(call, board, 8, "fiveinarow")
         elif call.message.chat.id in fiveinarow:
             search = re.search("fiveinarow ([0-9]):([0-9])", call.data)
             if search:
-                x, y = int(search.group(1)), int(search.group(2))
+                y, x = int(search.group(1)), 7 - int(search.group(2))
                 if fiveinarow[call.message.chat.id].is_move_valid(x, y):
-                    result = fiveinarow[call.message.chat.id].play(x, y)
-                    send_gamoku_info(call, result[0], 8, "fiveinarow")
-                    if result[1]:
+                    board, end_flag = fiveinarow[call.message.chat.id].play(x, y)
+                    board = [[char.replace('X', '🔴').replace('O', '🔵️') for char in row] for row in board]
+                    send_gamoku_info(call, board, 8, "fiveinarow")
+                    if end_flag:
                         message = "You won! 😻"
-                        if result[1] == 2:
+                        if end_flag == 1:
                             message = "You lost! 😈"
-                        if result[1] == 3:
+                        if end_flag == 3:
                             message = "It's a draw! 😱"
                         send_end_game_info(call.message, message, "fiveinarow")
 

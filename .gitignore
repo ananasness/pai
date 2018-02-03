@@ -103,3 +103,7 @@ ENV/
 *.iml
 tic-tac-toe/token
 tic-tac-toe/wolfram_appid
+
+.DS_Store
+.vscode
+pylintrc

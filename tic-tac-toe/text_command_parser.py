@@ -4,7 +4,7 @@ from nltk import word_tokenize
 
 
 def command_parse(s):
-    games = ['tictactoe', 'matches', 'equation', 'gomoku','randomgame']
+    games = ['tictactoe', 'matches', 'equation', 'fiveinarow', 'randomgame']
     symbols = """!@#$%^&*()_+-=[]{}:"'\|?/>.<,`~"""
     tokens = [token.strip(symbols).lower() for token in word_tokenize(s)]
     phones = ''.join(tokens)

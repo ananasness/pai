@@ -9,6 +9,7 @@ from telebot import types
 from telebot.apihelper import ApiException
 from telebot import apihelper
 
+from features.obj_recognition import ObjRecognition
 from features.text_command_parser import *
 from features.audio_converter import *
 from games.gomoku2 import Game as Gomoku
@@ -23,6 +24,7 @@ with open('wolfram_appid') as appidfile:
 apihelper.proxy = {'https': 'socks5://:@telegram.vpn99.net:55655'}
 bot = telebot.TeleBot(TOKEN)
 translator = Translator()
+obr = ObjRecognition()
 
 tictactoe = {}
 fiveinarow = {}
@@ -137,11 +139,8 @@ def handle_photo(message):
 
     # Use the photo to recognize what's on it
 
-    recognized = "Petya"
-    if recognized:
-        bot.send_message(message.chat.id, translate(message.chat.id, "It's %s!" % recognized))
-    else:
-        bot.send_message(message.chat.id, translate(message.chat.id, "I don't know what this is! Sorry!"))
+    recognized = obr.get_info_about(photo)
+    bot.send_message(message.chat.id, translate(message.chat.id, recognized))
 
 
 @bot.message_handler(content_types=['voice'])

@@ -3,16 +3,17 @@ import re
 import requests
 import speech_recognition as sr
 import telebot
+import time
 from googletrans import Translator
 from telebot import types
 from telebot.apihelper import ApiException
 from telebot import apihelper
 
+from features.text_command_parser import *
 from features.audio_converter import *
 from games.gomoku2 import Game as Gomoku
 from games.matches import Matches
 from games.minmax_alg import MinMax
-from features.text_command_parser import *
 
 with open('token', 'r') as tokenfile:
     TOKEN = tokenfile.read()
@@ -126,6 +127,21 @@ def solve_equation(message):
                                         "Oh no! There is something terribly wrong!\nI cannot help you at this time..."))
     send_end_game_info(message, translate(message.chat.id, "Would you like to try again?"), "equation",
                        translate(message.chat.id, "Solve another equation"))
+
+
+@bot.message_handler(content_types=['photo'])
+def handle_photo(message):
+    print(message.photo)
+    file_info = bot.get_file(message.photo[-1].file_id)
+    photo = bot.download_file(file_info.file_path)
+
+    # Use the photo to recognize what's on it
+
+    recognized = "Petya"
+    if recognized:
+        bot.send_message(message.chat.id, translate(message.chat.id, "It's %s!" % recognized))
+    else:
+        bot.send_message(message.chat.id, translate(message.chat.id, "I don't know what this is! Sorry!"))
 
 
 @bot.message_handler(content_types=['voice'])
@@ -297,7 +313,10 @@ def send_end_game_info(message, text, game, btn1_text=None):
 
 
 if __name__ == '__main__':
-    try:
-        bot.polling(none_stop=True)
-    except Exception as e:
-        print(e)
+    while True:
+        try:
+            bot.polling(timeout=50, none_stop=True)
+        except:
+            time.sleep(5)
+            continue
+        break

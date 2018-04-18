@@ -140,6 +140,7 @@ def handle_photo(message):
     url = "https://api.telegram.org/file/bot{0}/{1}".format(TOKEN, file_info.file_path)
     r = requests.get(url, stream=True, proxies=PROXY)
     if r.status_code == 200:
+
         # To save file
         with open("photo.jpg", 'wb') as f:
             r.raw.decode_content = True

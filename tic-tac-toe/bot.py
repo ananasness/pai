@@ -7,11 +7,11 @@ from googletrans import Translator
 from telebot import types
 from telebot.apihelper import ApiException
 
-from audio_converter import *
-from gomoku2 import Game as Gomoku
-from matches import Matches
-from minmax_alg import MinMax
-from text_command_parser import *
+from features.audio_converter import *
+from games.gomoku2 import Game as Gomoku
+from games.matches import Matches
+from games.minmax_alg import MinMax
+from features.text_command_parser import *
 
 with open('token', 'r') as tokenfile:
     TOKEN = tokenfile.read()

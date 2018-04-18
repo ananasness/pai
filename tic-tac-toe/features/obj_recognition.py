@@ -3,12 +3,12 @@ import wikipedia
 sys.path.append(os.path.join(os.getcwd(), '../darknet/python/'))
 
 from darknet import *
-from classifier import *
+from features.classifier import *
 
 
 class ObjRecognition:
     def __init__(self):
-        prefix = b"/Users/almiramurtazina/git/darknet/"
+        prefix = b"../../darknet/"
         self.net = load_net(prefix + b"cfg/yolov3.cfg", prefix + b"yolov3.weights", 0)
         self.meta = load_meta(prefix + b"cfg/coco.data")
 
@@ -17,7 +17,7 @@ class ObjRecognition:
         res = "Sorry, I couldn't get what's on the picture"
         if len(objs):
             if objs[0][0].decode('utf-8') == 'person':
-                per, conf = person_infer("/Users/almiramurtazina/git/pai/classifier.pkl", img_path)
+                per, conf = person_infer("../../classifier.pkl", img_path)
                 if conf > 0.7:
                     res = "Oh! That's a member of our team - " + per
                 elif conf > 0.5:

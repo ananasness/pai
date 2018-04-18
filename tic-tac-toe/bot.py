@@ -21,8 +21,9 @@ with open('token', 'r') as tokenfile:
 with open('wolfram_appid') as appidfile:
     WOLFRAM_APPID = appidfile.read()
 
-apihelper.proxy = {'https': 'socks5://:@telegram.vpn99.net:55655'}
-bot = telebot.TeleBot(TOKEN)
+PROXY = {'https': 'socks5://:@telegram.vpn99.net:55655'}
+apihelper.proxy = PROXY
+bot = telebot.TeleBot(TOKEN, threaded=False)
 translator = Translator()
 obr = ObjRecognition()
 
@@ -133,21 +134,26 @@ def solve_equation(message):
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
-    print(message.photo)
     file_info = bot.get_file(message.photo[-1].file_id)
-    photo = bot.download_file(file_info.file_path)
-
-    # Use the photo to recognize what's on it
-
-    recognized = obr.get_info_about(photo)
-    bot.send_message(message.chat.id, translate(message.chat.id, recognized))
+    # photo = bot.download_file(file_info.file_path)
+    url = "https://api.telegram.org/file/bot{0}/{1}".format(TOKEN, file_info.file_path)
+    r = requests.get(url, stream=True, proxies=PROXY)
+    if r.status_code == 200:
+        recognized = obr.get_info_about(r.content)
+        bot.send_message(message.chat.id, translate(message.chat.id, recognized))
+        # To save file
+        # with open("photo.jpg", 'wb') as f:
+        #     r.raw.decode_content = True
+        #     shutil.copyfileobj(r.raw, f)
 
 
 @bot.message_handler(content_types=['voice'])
 def handle_audio(message):
     file_info = bot.get_file(message.voice.file_id)
     try:
-        voice_msg = bot.download_file(file_info.file_path)
+        # voice_msg = bot.download_file(file_info.file_path)
+        url = "https://api.telegram.org/file/bot{0}/{1}".format(TOKEN, file_info.file_path)
+        voice_msg = requests.get(url, stream=True, proxies=PROXY).content
 
         temp_out_filename = "voice.flac"
         convert_to_flac(voice_msg, temp_out_filename)
@@ -315,7 +321,10 @@ if __name__ == '__main__':
     while True:
         try:
             bot.polling(timeout=50, none_stop=True)
-        except:
+        except Exception as e:
+            print("\n=============ERROR=============")
+            print(e)
+            print("=============ERROR=============\n")
             time.sleep(5)
             continue
         break

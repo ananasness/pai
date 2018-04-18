@@ -6,6 +6,7 @@ import telebot
 from googletrans import Translator
 from telebot import types
 from telebot.apihelper import ApiException
+from telebot import apihelper
 
 from features.audio_converter import *
 from games.gomoku2 import Game as Gomoku
@@ -18,6 +19,7 @@ with open('token', 'r') as tokenfile:
 with open('wolfram_appid') as appidfile:
     WOLFRAM_APPID = appidfile.read()
 
+apihelper.proxy = {'https': 'socks5://:@telegram.vpn99.net:55655'}
 bot = telebot.TeleBot(TOKEN)
 translator = Translator()
 

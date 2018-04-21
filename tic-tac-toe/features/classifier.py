@@ -22,6 +22,7 @@ import time
 
 start = time.time()
 
+import argparse
 import cv2
 import os
 import pickle
@@ -44,10 +45,13 @@ from sklearn.mixture import GMM
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 
+fileDir = os.path.dirname(os.path.realpath(__file__))
+modelDir = os.path.join(fileDir, '..', 'models')
+dlibModelDir = os.path.join(modelDir, 'dlib')
+openfaceModelDir = os.path.join(modelDir, 'openface')
+
 
 def getRep(imgPath, multiple=False):
-    align = openface.AlignDlib('../shape_predictor_68_face_landmarks.dat')
-    net = openface.TorchNeuralNet("../classifier.pkl", imgDim=96)
     start = time.time()
     bgrImg = cv2.imread(imgPath)
     if bgrImg is None:
@@ -55,10 +59,10 @@ def getRep(imgPath, multiple=False):
 
     rgbImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2RGB)
 
-    # if args.verbose:
-    #     print("  + Original size: {}".format(rgbImg.shape))
-    # if args.verbose:
-    #     print("Loading the image took {} seconds.".format(time.time() - start))
+    if args.verbose:
+        print("  + Original size: {}".format(rgbImg.shape))
+    if args.verbose:
+        print("Loading the image took {} seconds.".format(time.time() - start))
 
     start = time.time()
 
@@ -68,29 +72,30 @@ def getRep(imgPath, multiple=False):
         bb1 = align.getLargestFaceBoundingBox(rgbImg)
         bbs = [bb1]
     if len(bbs) == 0 or (not multiple and bb1 is None):
-        raise Exception("Unable to find a face: {}".format(imgPath))
-    # if args.verbose:
-    #     print("Face detection took {} seconds.".format(time.time() - start))
+        return 1
+        # raise Exception("Unable to find a face: {}".format(imgPath))
+    if args.verbose:
+        print("Face detection took {} seconds.".format(time.time() - start))
 
     reps = []
     for bb in bbs:
         start = time.time()
         alignedFace = align.align(
-            96,
+            args.imgDim,
             rgbImg,
             bb,
             landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
         if alignedFace is None:
             raise Exception("Unable to align image: {}".format(imgPath))
-        # if args.verbose:
-        #     print("Alignment took {} seconds.".format(time.time() - start))
-        #     print("This bbox is centered at {}, {}".format(bb.center().x, bb.center().y))
+        if args.verbose:
+            print("Alignment took {} seconds.".format(time.time() - start))
+            print("This bbox is centered at {}, {}".format(bb.center().x, bb.center().y))
 
         start = time.time()
         rep = net.forward(alignedFace)
-        # if args.verbose:
-        #     print("Neural network forward pass took {} seconds.".format(
-        #         time.time() - start))
+        if args.verbose:
+            print("Neural network forward pass took {} seconds.".format(
+                time.time() - start))
         reps.append((bb.center().x, rep))
     sreps = sorted(reps, key=lambda x: x[0])
     return sreps
@@ -167,25 +172,6 @@ def train(args):
     with open(fName, 'wb') as f:
         pickle.dump((le, clf), f)
 
-def person_infer(model, img, multiple=False):
-
-    with open(model, 'rb') as f:
-        if sys.version_info[0] < 3:
-                (le, clf) = pickle.load(f)
-        else:
-                (le, clf) = pickle.load(f, encoding='latin1')
-
-        reps = getRep(img, multiple)
-        for r in reps:
-            rep = r[1].reshape(1, -1)
-            bbx = r[0]
-            predictions = clf.predict_proba(rep).ravel()
-            maxI = np.argmax(predictions)
-            person = le.inverse_transform(maxI)
-            confidence = predictions[maxI]
-
-        return (person, confidence)
-
 
 def infer(args, multiple=False):
     with open(args.classifierModel, 'rb') as f:
@@ -197,6 +183,8 @@ def infer(args, multiple=False):
     for img in args.imgs:
         print("\n=== {} ===".format(img))
         reps = getRep(img, multiple)
+        if reps == 1:
+            return 'person', 1
         if len(reps) > 1:
             print("List of faces in image from left to right")
         for r in reps:
@@ -214,6 +202,26 @@ def infer(args, multiple=False):
                                                                          confidence))
             else:
                 print("Predict {} with {:.2f} confidence.".format(person, confidence))
+                return person, confidence
             if isinstance(clf, GMM):
                 dist = np.linalg.norm(rep - clf.means_[maxI])
                 print("  + Distance from the mean: {}".format(dist))
+
+align = None
+net = None
+args = None
+def start_this(image_path):
+    global args, align, net
+    args = argparse.Namespace(classifierModel='/Users/almiramurtazina/git/pai/tic-tac-toe/features/classifier.pkl',
+                              cuda=False,
+                              dlibFacePredictor='/Users/almiramurtazina/git/openface/demos/../models/dlib/shape_predictor_68_face_landmarks.dat',
+                              imgDim=96,
+                              imgs=[image_path],
+                              mode='infer',
+                              multi=False,
+                              networkModel='/Users/almiramurtazina/git/openface/demos/../models/openface/nn4.small2.v1.t7',
+                              verbose=False)
+    align = openface.AlignDlib(args.dlibFacePredictor)
+    net = openface.TorchNeuralNet(args.networkModel, imgDim=args.imgDim,
+                                  cuda=args.cuda)
+    return infer(args, args.multi)

@@ -22,7 +22,7 @@ with open('token', 'r') as tokenfile:
 with open('wolfram_appid') as appidfile:
     WOLFRAM_APPID = appidfile.read()
 
-PROXY = {'https': 'socks5://:@telegram.vpn99.net:55655'}
+PROXY = {'https': 'socks5://:@5.101.64.68:64897'}
 apihelper.proxy = PROXY
 bot = telebot.TeleBot(TOKEN, threaded=False)
 translator = Translator()
@@ -135,18 +135,20 @@ def solve_equation(message):
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
+    bot.send_message(message.chat.id, translate(message.chat.id, "I'm going to try to figure out what's on this picture you sent me..."))
     file_info = bot.get_file(message.photo[-1].file_id)
     # photo = bot.download_file(file_info.file_path)
     url = "https://api.telegram.org/file/bot{0}/{1}".format(TOKEN, file_info.file_path)
     r = requests.get(url, stream=True, proxies=PROXY)
     if r.status_code == 200:
-
-        # To save file
         with open("photo.jpg", 'wb') as f:
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
+
         recognized = obr.get_info_about("photo.jpg")
-        bot.send_message(message.chat.id, translate(message.chat.id, recognized))
+    else:
+        recognized = "Whoops..."
+    bot.send_message(message.chat.id, translate(message.chat.id, recognized))
 
 
 
@@ -219,7 +221,7 @@ def fiveinarow_start(call):
         if call.data == "fiveinarow start":
             fiveinarow[call.message.chat.id] = Gomoku()
             board = fiveinarow[call.message.chat.id].state()
-            board = [[char.replace('X', '🔴').replace('O', '🔵') for char in row] for row in board]
+            # board = [[char.replace('X', '🔴').replace('O', '🔵') for char in row] for row in board]
             send_gamoku_info(call, board, 8, "fiveinarow")
         elif call.message.chat.id in fiveinarow:
             search = re.search("fiveinarow ([0-9]):([0-9])", call.data)
@@ -227,7 +229,7 @@ def fiveinarow_start(call):
                 y, x = int(search.group(1)), 7 - int(search.group(2))
                 if fiveinarow[call.message.chat.id].is_move_valid(x, y):
                     board, end_flag = fiveinarow[call.message.chat.id].play(x, y)
-                    board = [[char.replace('X', '🔴').replace('O', '🔵️') for char in row] for row in board]
+                    # board = [[char.replace('X', '🔴').replace('O', '🔵️') for char in row] for row in board]
                     send_gamoku_info(call, board, 8, "fiveinarow")
                     if end_flag:
                         message = translate(call.message.chat.id, "You won!") + " 😻"

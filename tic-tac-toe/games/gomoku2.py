@@ -3,9 +3,9 @@
 """
 import numpy as np
 # from policy_value_net import PolicyValueNet
-from policy_value_net_numpy import PolicyValueNetNumpy
-from mcts_pure import MCTSPlayer as MCTS_Pure
-from mcts_alphaZero import MCTSPlayer
+from AlphaZero_Gomoku.policy_value_net_numpy import PolicyValueNetNumpy
+from AlphaZero_Gomoku.mcts_pure import MCTSPlayer as MCTS_Pure
+from AlphaZero_Gomoku.mcts_alphaZero import MCTSPlayer
 # import cPickle as pickle
 import pickle
 

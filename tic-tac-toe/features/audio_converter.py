@@ -10,7 +10,7 @@ def convert_to_flac(in_bytes, out_file_name):
     temp_in_file.close()
 
     command = [
-        r'ffmpeg\bin\ffmpeg.exe',
+        r'/Users/almiramurtazina/git/pai/tic-tac-toe/ffmpeg/bin/ffmpeg',
         '-i', in_filename,
         '-c:a', 'flac',
         '-ar', '16000',
